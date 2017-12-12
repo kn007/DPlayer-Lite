@@ -1,7 +1,9 @@
 ## Introduction
 DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.17.1 5207d26.
 
-**DPlayer-Lite supports:**
+![dplayer-lite-preview](https://user-images.githubusercontent.com/6196903/33885965-eed74a92-df7f-11e7-9a18-d8e53b522c3f.png)
+
+**DPlayer Lite supports:**
 
 - Streaming formats
 	- [HLS](https://github.com/video-dev/hls.js)
