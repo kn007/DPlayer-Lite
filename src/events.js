@@ -11,6 +11,7 @@ class Events {
         this.playerEvents = [
             'loop_enable', 'loop_disable',
             'notice_show', 'notice_hide',
+            'resize',
             'fullscreen', 'fullscreen_cancel', 'webfullscreen', 'webfullscreen_cancel'
         ];
     }
