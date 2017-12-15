@@ -3,7 +3,7 @@ require('./DPlayer.scss');
 import utils, { isMobile } from './utils';
 import handleOption from './options';
 import i18n from './i18n';
-import html from './html';
+import Template from './template';
 import SvgCollection from './svg';
 import Events from './events';
 import FullScreen from './fullscreen';
@@ -39,14 +39,17 @@ class DPlayer {
             this.container.classList.add('dplayer-mobile');
         }
 
-        this.container.innerHTML = html.main(this.options, this.tran, this.icons);
+        this.template = new Template({
+            container: this.container,
+            options: this.options,
+            tran: this.tran,
+            icons: this.icons
+        });
 
         const bar = {};
-        bar.volumeBar = this.container.getElementsByClassName('dplayer-volume-bar-inner')[0];
-        bar.playedBar = this.container.getElementsByClassName('dplayer-played')[0];
-        bar.loadedBar = this.container.getElementsByClassName('dplayer-loaded')[0];
-        const pbar = this.container.getElementsByClassName('dplayer-bar-wrap')[0];
-        const pbarTimeTips = this.container.getElementsByClassName('dplayer-bar-time')[0];
+        bar.volumeBar = this.template.volumeBar;
+        bar.playedBar = this.template.playedBar;
+        bar.loadedBar = this.template.loadedBar;
         let barWidth;
 
         /**
@@ -71,27 +74,23 @@ class DPlayer {
         }, true);
 
         // get this video manager
-        this.video = this.container.getElementsByClassName('dplayer-video-current')[0];
+        this.video = this.template.video;
 
-        this.bezel = this.container.getElementsByClassName('dplayer-bezel-icon')[0];
-        this.bezel.addEventListener('animationend', () => {
-            this.bezel.classList.remove('dplayer-bezel-transition');
+        this.template.bezel.addEventListener('animationend', () => {
+            this.template.bezel.classList.remove('dplayer-bezel-transition');
         });
 
         // play and pause button
-        this.playButton = this.container.getElementsByClassName('dplayer-play-icon')[0];
         this.paused = true;
-        this.playButton.addEventListener('click', () => {
+        this.template.playButton.addEventListener('click', () => {
             this.toggle();
         });
 
-        const videoWrap = this.container.getElementsByClassName('dplayer-video-wrap')[0];
-        const conMask = this.container.getElementsByClassName('dplayer-controller-mask')[0];
         if (!isMobile) {
-            videoWrap.addEventListener('click', () => {
+            this.template.videoWrap.addEventListener('click', () => {
                 this.toggle();
             });
-            conMask.addEventListener('click', () => {
+            this.template.controllerMask.addEventListener('click', () => {
                 this.toggle();
             });
         }
@@ -104,8 +103,8 @@ class DPlayer {
                     this.container.classList.add('dplayer-hide-controller');
                 }
             };
-            videoWrap.addEventListener('click', toggleController);
-            conMask.addEventListener('click', toggleController);
+            this.template.videoWrap.addEventListener('click', toggleController);
+            this.template.controllerMask.addEventListener('click', toggleController);
         }
 
         let lastPlayPos = 0;
@@ -150,7 +149,7 @@ class DPlayer {
         this.animationFrame = () => {
             if (this.playedTime) {
                 this.updateBar('played', this.video.currentTime / this.video.duration, 'width');
-                this.container.getElementsByClassName('dplayer-ptime')[0].innerHTML = utils.secondToTime(this.video.currentTime);
+                this.template.ptime.innerHTML = utils.secondToTime(this.video.currentTime);
             }
             window.requestAnimationFrame(this.animationFrame);
         };
@@ -182,22 +181,22 @@ class DPlayer {
         };
 
         this.isTimeTipsShow = true;
-        this.mouseHandler = this.mouseHandler(pbar, pbarTimeTips).bind(this);
-        pbar.addEventListener('mousemove', this.mouseHandler);
-        pbar.addEventListener('mouseleave', this.mouseHandler);
+        this.mouseHandler = this.mouseHandler(this.template.playedBarWrap, this.template.playedBarTime).bind(this);
+        this.template.playedBarWrap.addEventListener('mousemove', this.mouseHandler);
+        this.template.playedBarWrap.addEventListener('mouseleave', this.mouseHandler);
 
         const thumbMove = (e) => {
-            let percentage = (e.clientX - utils.getElementViewLeft(pbar)) / barWidth;
+            let percentage = (e.clientX - utils.getElementViewLeft(this.template.playedBarWrap)) / barWidth;
             percentage = percentage > 0 ? percentage : 0;
             percentage = percentage < 1 ? percentage : 1;
             this.updateBar('played', percentage, 'width');
-            this.container.getElementsByClassName('dplayer-ptime')[0].innerHTML = utils.secondToTime(percentage * this.video.duration);
+            this.template.ptime.innerHTML = utils.secondToTime(percentage * this.video.duration);
         };
 
         const thumbUp = (e) => {
             document.removeEventListener('mouseup', thumbUp);
             document.removeEventListener('mousemove', thumbMove);
-            let percentage = (e.clientX - utils.getElementViewLeft(pbar)) / barWidth;
+            let percentage = (e.clientX - utils.getElementViewLeft(this.template.playedBarWrap)) / barWidth;
             percentage = percentage > 0 ? percentage : 0;
             percentage = percentage < 1 ? percentage : 1;
             this.updateBar('played', percentage, 'width');
@@ -205,8 +204,8 @@ class DPlayer {
             this.setTime();
         };
 
-        pbar.addEventListener('mousedown', () => {
-            barWidth = pbar.clientWidth;
+        this.template.playedBarWrap.addEventListener('mousedown', () => {
+            barWidth = this.template.playedBarWrap.clientWidth;
             this.clearTime();
             document.addEventListener('mousemove', thumbMove);
             document.addEventListener('mouseup', thumbUp);
@@ -215,45 +214,41 @@ class DPlayer {
         /**
          * control volume
          */
-        const volumeEle = this.container.getElementsByClassName('dplayer-volume')[0];
-        const volumeBarWrapWrap = this.container.getElementsByClassName('dplayer-volume-bar-wrap')[0];
-        const volumeBarWrap = this.container.getElementsByClassName('dplayer-volume-bar')[0];
-        const volumeicon = this.container.getElementsByClassName('dplayer-volume-icon')[0].getElementsByClassName('dplayer-icon-content')[0];
         const vWidth = 35;
 
         this.switchVolumeIcon = () => {
             if (this.volume() >= 0.8) {
-                volumeicon.innerHTML = this.icons.get('volume-up');
+                this.template.volumeIcon.innerHTML = this.icons.get('volume-up');
             }
             else if (this.volume() > 0) {
-                volumeicon.innerHTML = this.icons.get('volume-down');
+                this.template.volumeIcon.innerHTML = this.icons.get('volume-down');
             }
             else {
-                volumeicon.innerHTML = this.icons.get('volume-off');
+                this.template.volumeIcon.innerHTML = this.icons.get('volume-off');
             }
         };
         const volumeMove = (event) => {
             const e = event || window.event;
-            const percentage = (e.clientX - utils.getElementViewLeft(volumeBarWrap) - 5.5) / vWidth;
+            const percentage = (e.clientX - utils.getElementViewLeft(this.template.volumeBarWrap) - 5.5) / vWidth;
             this.volume(percentage);
         };
         const volumeUp = () => {
             document.removeEventListener('mouseup', volumeUp);
             document.removeEventListener('mousemove', volumeMove);
-            volumeEle.classList.remove('dplayer-volume-active');
+            this.template.volumeButton.classList.remove('dplayer-volume-active');
         };
 
-        volumeBarWrapWrap.addEventListener('click', (event) => {
+        this.template.volumeBarWrapWrap.addEventListener('click', (event) => {
             const e = event || window.event;
-            const percentage = (e.clientX - utils.getElementViewLeft(volumeBarWrap) - 5.5) / vWidth;
+            const percentage = (e.clientX - utils.getElementViewLeft(this.template.volumeBarWrap) - 5.5) / vWidth;
             this.volume(percentage);
         });
-        volumeBarWrapWrap.addEventListener('mousedown', () => {
+        this.template.volumeBarWrapWrap.addEventListener('mousedown', () => {
             document.addEventListener('mousemove', volumeMove);
             document.addEventListener('mouseup', volumeUp);
-            volumeEle.classList.add('dplayer-volume-active');
+            this.template.volumeButton.classList.add('dplayer-volume-active');
         });
-        volumeicon.addEventListener('click', () => {
+        this.template.volumeIcon.addEventListener('click', () => {
             if (this.video.muted) {
                 this.video.muted = false;
                 this.switchVolumeIcon();
@@ -261,7 +256,7 @@ class DPlayer {
             }
             else {
                 this.video.muted = true;
-                volumeicon.innerHTML = this.icons.get('volume-off');
+                this.template.volumeIcon.innerHTML = this.icons.get('volume-off');
                 this.updateBar('volume', 0, 'width');
             }
         });
@@ -289,17 +284,14 @@ class DPlayer {
          */
         this.loop = this.options.loop;
         const loopEvent = () => {
-            const loopIcon = this.container.getElementsByClassName('dplayer-loop-icon')[0];
-            const loopIn = loopIcon.getElementsByClassName('dplayer-icon-content')[0];
-
             this.events.on('loop_enable', () => {
-                loopIn.style.opacity = '';
+                this.template.loopIcon.style.opacity = '';
             });
             this.events.on('loop_disable', () => {
-                loopIn.style.opacity = '0.4';
+                this.template.loopIcon.style.opacity = '0.4';
             });
 
-            loopIcon.addEventListener('click', () => {
+            this.template.loopButton.addEventListener('click', () => {
                 this.loop = !this.loop;
                 if (this.loop) {
                     this.events.trigger('loop_enable');
@@ -319,7 +311,7 @@ class DPlayer {
 
         // set duration time
         if (this.video.duration !== 1) { // compatibility: Android browsers will output 1 at first
-            this.container.getElementsByClassName('dplayer-dtime')[0].innerHTML = this.video.duration ? utils.secondToTime(this.video.duration) : '00:00';
+            this.template.dtime.innerHTML = this.video.duration ? utils.secondToTime(this.video.duration) : '00:00';
         }
 
         // autoplay
@@ -333,12 +325,12 @@ class DPlayer {
         this.fullScreen = new FullScreen(this);
 
         // browser full screen
-        this.container.getElementsByClassName('dplayer-full-icon')[0].addEventListener('click', () => {
+        this.template.browserFullButton.addEventListener('click', () => {
             this.fullScreen.toggle('browser');
         });
 
         // web page full screen
-        this.container.getElementsByClassName('dplayer-full-in-icon')[0].addEventListener('click', () => {
+        this.template.webFullButton.addEventListener('click', () => {
             this.fullScreen.toggle('web');
         });
 
@@ -422,11 +414,11 @@ class DPlayer {
     play () {
         this.paused = false;
         if (this.video.paused) {
-            this.bezel.innerHTML = this.icons.get('play');
-            this.bezel.classList.add('dplayer-bezel-transition');
+            this.template.bezel.innerHTML = this.icons.get('play');
+            this.template.bezel.classList.add('dplayer-bezel-transition');
         }
 
-        this.playButton.innerHTML = this.icons.get('pause');
+        this.template.playButton.innerHTML = this.icons.get('pause');
 
         this.video.play();
         this.setTime();
@@ -448,12 +440,12 @@ class DPlayer {
         this.container.classList.remove('dplayer-loading');
 
         if (!this.video.paused) {
-            this.bezel.innerHTML = this.icons.get('pause');
-            this.bezel.classList.add('dplayer-bezel-transition');
+            this.template.bezel.innerHTML = this.icons.get('pause');
+            this.template.bezel.classList.add('dplayer-bezel-transition');
         }
 
         this.ended = false;
-        this.playButton.innerHTML = this.icons.get('play');
+        this.template.playButton.innerHTML = this.icons.get('play');
         this.video.pause();
         this.clearTime();
         this.container.classList.remove('dplayer-playing');
@@ -523,7 +515,6 @@ class DPlayer {
 
         // HTTP Live Streaming
         if (this.type === 'hls' && Hls && Hls.isSupported()) {
-            // this.container.getElementsByClassName('dplayer-time')[0].style.display = 'none';
             const hls = new Hls();
             hls.loadSource(video.src);
             hls.attachMedia(video);
@@ -554,7 +545,7 @@ class DPlayer {
         // show video time: the metadata has loaded or changed
         this.on('durationchange', () => {
             if (video.duration !== 1) {           // compatibility: Android browsers will output 1 at first
-                this.container.getElementsByClassName('dplayer-dtime')[0].innerHTML = utils.secondToTime(video.duration);
+                this.template.dtime.innerHTML = utils.secondToTime(video.duration);
             }
         });
 
@@ -662,15 +653,14 @@ class DPlayer {
     }
 
     notice (text, time = 1500, opacity = 0.8) {
-        const noticeEle = this.container.getElementsByClassName('dplayer-notice')[0];
-        noticeEle.innerHTML = text;
-        noticeEle.style.opacity = opacity;
+        this.template.notice.innerHTML = text;
+        this.template.notice.style.opacity = opacity;
         if (this.noticeTime) {
             clearTimeout(this.noticeTime);
         }
-        this.events.trigger('notice_show');
+        this.events.trigger('notice_show', text);
         this.noticeTime = setTimeout(() => {
-            noticeEle.style.opacity = 0;
+            this.template.notice.style.opacity = 0;
             this.events.trigger('notice_hide');
         }, time);
     }
