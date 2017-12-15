@@ -119,6 +119,7 @@ class Template {
             </div>
         </div>
         <div class="dplayer-notice"></div>`;
+    }
 }
 
 module.exports = Template;
