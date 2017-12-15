@@ -1,5 +1,40 @@
-const html = {
-    main: (options, tran, icons) => `
+class Template {
+    constructor (options) {
+        this.container = options.container;
+        this.options = options.options;
+        this.tran = options.tran;
+        this.icons = options.icons;
+        this.init();
+    }
+
+    init () {
+        this.container.innerHTML = this.tpl(this.options, this.tran, this.icons);
+
+        this.volumeBar = this.container.querySelector('.dplayer-volume-bar-inner');
+        this.volumeBarWrap = this.container.querySelector('.dplayer-volume-bar');
+        this.volumeBarWrapWrap = this.container.querySelector('.dplayer-volume-bar-wrap');
+        this.volumeButton = this.container.querySelector('.dplayer-volume');
+        this.volumeIcon = this.container.querySelector('.dplayer-volume-icon .dplayer-icon-content');
+        this.playedBar = this.container.querySelector('.dplayer-played');
+        this.loadedBar = this.container.querySelector('.dplayer-loaded');
+        this.playedBarWrap = this.container.querySelector('.dplayer-bar-wrap');
+        this.playedBarTime = this.container.querySelector('.dplayer-bar-time');
+        this.video = this.container.querySelector('.dplayer-video-current');
+        this.bezel = this.container.querySelector('.dplayer-bezel-icon');
+        this.playButton = this.container.querySelector('.dplayer-play-icon');
+        this.videoWrap = this.container.querySelector('.dplayer-video-wrap');
+        this.controllerMask = this.container.querySelector('.dplayer-controller-mask');
+        this.ptime = this.container.querySelector('.dplayer-ptime');
+        this.loopButton = this.container.querySelector('.dplayer-loop-icon');
+        this.loopIcon = this.container.querySelector('.dplayer-loop-icon .dplayer-icon-content');
+        this.dtime = this.container.querySelector('.dplayer-dtime');
+        this.browserFullButton = this.container.querySelector('.dplayer-full-icon');
+        this.webFullButton = this.container.querySelector('.dplayer-full-in-icon');
+        this.notice = this.container.querySelector('.dplayer-notice');
+    }
+
+    tpl (options, tran, icons) {
+        return `
         <div class="dplayer-mask"></div>
         <div class="dplayer-video-wrap">
             <video class="dplayer-video dplayer-video-current" ${options.video.pic ? `poster="${options.video.pic}"` : ``} webkit-playsinline playsinline ${options.preload ? `preload="${options.preload}"` : ``} src="${options.video.url}"></video>
@@ -83,7 +118,7 @@ const html = {
                 </div>
             </div>
         </div>
-        <div class="dplayer-notice"></div>`
-};
+        <div class="dplayer-notice"></div>`;
+}
 
-module.exports = html;
+module.exports = Template;
