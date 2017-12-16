@@ -49,11 +49,6 @@ class FullScreen {
             else if (this.player.video.webkitEnterFullscreen) {   // Safari for iOS
                 this.player.video.webkitEnterFullscreen();
             }
-
-            if (this.isFullScreen('web')) {
-                this.cancel('web');
-            }
-
             break;
         case 'web':
             this.player.container.classList.add('dplayer-fulled');
@@ -63,11 +58,6 @@ class FullScreen {
             document.body.classList.add('dplayer-web-fullscreen-fix');
 
             this.player.events.trigger('webfullscreen');
-
-            if (this.isFullScreen('browser')) {
-                this.cancel('browser');
-            }
-
             break;
         }
     }
@@ -103,6 +93,10 @@ class FullScreen {
         }
         else {
             this.request(type);
+            const anotherType = type === 'browser' ? 'web' : 'browser';
+            if (this.isFullScreen(anotherType)) {
+                this.cancel(anotherType);
+            }
         }
     }
 }
