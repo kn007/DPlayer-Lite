@@ -668,6 +668,21 @@ class DPlayer {
     resize () {
         this.events.trigger('resize');
     }
+
+    destroy () {
+        instances.splice(instances.indexOf(this), 1);
+        this.pause();
+        clearTimeout(this.hideTime);
+        this.video.src = '';
+        this.container.innerHTML = '';
+        this.events.trigger('destroy');
+
+        for (const key in this) {
+            if (this.hasOwnProperty(key) && key !== 'paused') {
+                delete this[key];
+            }
+        }
+    }
 }
 
 module.exports = DPlayer;
