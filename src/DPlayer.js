@@ -7,6 +7,7 @@ import Template from './template';
 import SvgCollection from './svg';
 import Events from './events';
 import FullScreen from './fullscreen';
+import Bar from './bar';
 
 const instances = [];
 
@@ -46,24 +47,7 @@ class DPlayer {
             icons: this.icons
         });
 
-        const bar = {};
-        bar.volumeBar = this.template.volumeBar;
-        bar.playedBar = this.template.playedBar;
-        bar.loadedBar = this.template.loadedBar;
-        let barWidth;
-
-        /**
-         * Update progress bar, including loading progress bar and play progress bar
-         *
-         * @param {String} type - Point out which bar it is, should be played loaded or volume
-         * @param {Number} percentage
-         * @param {String} direction - Point out the direction of this bar, Should be height or width
-         */
-        this.updateBar = (type, percentage, direction) => {
-            percentage = percentage > 0 ? percentage : 0;
-            percentage = percentage < 1 ? percentage : 1;
-            bar[type + 'Bar'].style[direction] = percentage * 100 + '%';
-        };
+        this.bar = new Bar(this.template);
 
         document.addEventListener('click', () => {
             this.focus = false;
@@ -148,7 +132,7 @@ class DPlayer {
         this.playedTime = false;
         this.animationFrame = () => {
             if (this.playedTime) {
-                this.updateBar('played', this.video.currentTime / this.video.duration, 'width');
+                this.bar.set('played', this.video.currentTime / this.video.duration, 'width');
                 this.template.ptime.innerHTML = utils.secondToTime(this.video.currentTime);
             }
             window.requestAnimationFrame(this.animationFrame);
@@ -185,11 +169,12 @@ class DPlayer {
         this.template.playedBarWrap.addEventListener('mousemove', this.mouseHandler);
         this.template.playedBarWrap.addEventListener('mouseleave', this.mouseHandler);
 
+        let barWidth;
         const thumbMove = (e) => {
             let percentage = (e.clientX - utils.getElementViewLeft(this.template.playedBarWrap)) / barWidth;
-            percentage = percentage > 0 ? percentage : 0;
-            percentage = percentage < 1 ? percentage : 1;
-            this.updateBar('played', percentage, 'width');
+            percentage = Math.max(percentage, 0);
+            percentage = Math.min(percentage, 1);
+            this.bar.set('played', percentage, 'width');
             this.template.ptime.innerHTML = utils.secondToTime(percentage * this.video.duration);
         };
 
@@ -197,10 +182,10 @@ class DPlayer {
             document.removeEventListener('mouseup', thumbUp);
             document.removeEventListener('mousemove', thumbMove);
             let percentage = (e.clientX - utils.getElementViewLeft(this.template.playedBarWrap)) / barWidth;
-            percentage = percentage > 0 ? percentage : 0;
-            percentage = percentage < 1 ? percentage : 1;
-            this.updateBar('played', percentage, 'width');
-            this.seek(parseFloat(bar.playedBar.style.width) / 100 * this.video.duration);
+            percentage = Math.max(percentage, 0);
+            percentage = Math.min(percentage, 1);
+            this.bar.set('played', percentage, 'width');
+            this.seek(this.bar.get('played') * this.video.duration);
             this.setTime();
         };
 
@@ -252,12 +237,12 @@ class DPlayer {
             if (this.video.muted) {
                 this.video.muted = false;
                 this.switchVolumeIcon();
-                this.updateBar('volume', this.volume(), 'width');
+                this.bar.set('volume', this.volume(), 'width');
             }
             else {
                 this.video.muted = true;
                 this.template.volumeIcon.innerHTML = this.icons.get('volume-off');
-                this.updateBar('volume', 0, 'width');
+                this.bar.set('volume', 0, 'width');
             }
         });
 
@@ -405,7 +390,7 @@ class DPlayer {
 
         this.video.currentTime = time;
 
-        this.updateBar('played', time / this.video.duration, 'width');
+        this.bar.set('played', time / this.video.duration, 'width');
     }
 
     /**
@@ -457,9 +442,9 @@ class DPlayer {
     volume (percentage, send_notice) {
         percentage = parseFloat(percentage);
         if (!isNaN(percentage)) {
-            percentage = percentage > 0 ? percentage : 0;
-            percentage = percentage < 1 ? percentage : 1;
-            this.updateBar('volume', percentage, 'width');
+            percentage = Math.max(percentage, 0);
+            percentage = Math.min(percentage, 1);
+            this.bar.set('volume', percentage, 'width');
             if (send_notice) {
                 this.notice(`${this.tran('Volume')} ${(percentage * 100).toFixed(0)}%`);
             }
@@ -552,7 +537,7 @@ class DPlayer {
         // show video loaded bar: to inform interested parties of progress downloading the media
         this.on('progress', () => {
             const percentage = video.buffered.length ? video.buffered.end(video.buffered.length - 1) / video.duration : 0;
-            this.updateBar('loaded', percentage, 'width');
+            this.bar.set('loaded', percentage, 'width');
         });
 
         // video download error: an error occurs
@@ -563,7 +548,7 @@ class DPlayer {
         // video end
         this.ended = false;
         this.on('ended', () => {
-            this.updateBar('played', 1, 'width');
+            this.bar.set('played', 1, 'width');
             if (!this.loop) {
                 this.ended = true;
                 this.pause();
