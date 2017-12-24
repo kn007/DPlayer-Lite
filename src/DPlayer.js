@@ -8,6 +8,8 @@ import SvgCollection from './svg';
 import Events from './events';
 import FullScreen from './fullscreen';
 import Bar from './bar';
+import Time from './time';
+import Bezel from './bezel';
 
 const instances = [];
 
@@ -22,12 +24,6 @@ class DPlayer {
     constructor (options) {
         this.options = handleOption(options);
 
-        this.options.container.classList.add('dplayer');
-
-        if (isMobile) {
-            this.options.autoplay = false;
-        }
-
         this.tran = new i18n(this.options.lang).tran;
 
         this.icons = new SvgCollection(this.options);
@@ -36,7 +32,10 @@ class DPlayer {
 
         this.container = this.options.container;
 
+        this.container.classList.add('dplayer');
+
         if (isMobile) {
+            this.options.autoplay = false;
             this.container.classList.add('dplayer-mobile');
         }
 
@@ -47,22 +46,18 @@ class DPlayer {
             icons: this.icons
         });
 
+        this.video = this.template.video;
+
         this.bar = new Bar(this.template);
+
+        this.bezel = new Bezel(this.template.bezel);
 
         document.addEventListener('click', () => {
             this.focus = false;
         }, true);
-
         this.container.addEventListener('click', () => {
             this.focus = true;
         }, true);
-
-        // get this video manager
-        this.video = this.template.video;
-
-        this.template.bezel.addEventListener('animationend', () => {
-            this.template.bezel.classList.remove('dplayer-bezel-transition');
-        });
 
         // play and pause button
         this.paused = true;
@@ -91,78 +86,7 @@ class DPlayer {
             this.template.controllerMask.addEventListener('click', toggleController);
         }
 
-        let lastPlayPos = 0;
-        let currentPlayPos = 0;
-        let bufferingDetected = false;
-        window.requestAnimationFrame = (() =>
-            window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            function (callback) {
-                window.setTimeout(callback, 1000 / 60);
-            }
-        )();
-
-        const setCheckLoadingTime = () => {
-            this.checkLoading = setInterval(() => {
-                // whether the video is buffering
-                currentPlayPos = this.video.currentTime;
-                if (!bufferingDetected
-                    && currentPlayPos === lastPlayPos
-                    && !this.video.paused) {
-                    this.container.classList.add('dplayer-loading');
-                    bufferingDetected = true;
-                }
-                if (bufferingDetected
-                    && currentPlayPos > lastPlayPos
-                    && !this.video.paused) {
-                    this.container.classList.remove('dplayer-loading');
-                    bufferingDetected = false;
-                }
-                lastPlayPos = currentPlayPos;
-            }, 100);
-        };
-
-        const clearCheckLoadingTime = () => {
-            clearInterval(this.checkLoading);
-        };
-
-        this.playedTime = false;
-        this.animationFrame = () => {
-            if (this.playedTime) {
-                this.bar.set('played', this.video.currentTime / this.video.duration, 'width');
-                this.template.ptime.innerHTML = utils.secondToTime(this.video.currentTime);
-            }
-            window.requestAnimationFrame(this.animationFrame);
-        };
-        window.requestAnimationFrame(this.animationFrame);
-
-        this.setTime = (type) => {
-            if (!type) {
-                this.playedTime = true;
-                setCheckLoadingTime();
-            }
-            else {
-                this[`${type}Time`] = true;
-                if (type === 'played') {
-                    setCheckLoadingTime();
-                }
-            }
-        };
-        this.clearTime = (type) => {
-            if (!type) {
-                this.playedTime = false;
-                clearCheckLoadingTime();
-            }
-            else {
-                this[`${type}Time`] = false;
-                if (type === 'played') {
-                    clearCheckLoadingTime();
-                }
-            }
-        };
+        this.time = new Time(this);
 
         this.isTimeTipsShow = true;
         this.mouseHandler = this.mouseHandler(this.template.playedBarWrap, this.template.playedBarTime).bind(this);
@@ -186,12 +110,12 @@ class DPlayer {
             percentage = Math.min(percentage, 1);
             this.bar.set('played', percentage, 'width');
             this.seek(this.bar.get('played') * this.video.duration);
-            this.setTime();
+            this.time.enable('progress');
         };
 
         this.template.playedBarWrap.addEventListener('mousedown', () => {
             barWidth = this.template.playedBarWrap.clientWidth;
-            this.clearTime();
+            this.time.disable('progress');
             document.addEventListener('mousemove', thumbMove);
             document.addEventListener('mouseup', thumbUp);
         });
@@ -399,14 +323,13 @@ class DPlayer {
     play () {
         this.paused = false;
         if (this.video.paused) {
-            this.template.bezel.innerHTML = this.icons.get('play');
-            this.template.bezel.classList.add('dplayer-bezel-transition');
+            this.bezel.switch(this.icons.get('play'));
         }
 
         this.template.playButton.innerHTML = this.icons.get('pause');
 
         this.video.play();
-        this.setTime();
+        this.time.enable();
         this.container.classList.add('dplayer-playing');
         if (this.options.mutex) {
             for (let i = 0; i < instances.length; i++) {
@@ -425,14 +348,13 @@ class DPlayer {
         this.container.classList.remove('dplayer-loading');
 
         if (!this.video.paused) {
-            this.template.bezel.innerHTML = this.icons.get('pause');
-            this.template.bezel.classList.add('dplayer-bezel-transition');
+            this.bezel.switch(this.icons.get('pause'));
         }
 
         this.ended = false;
         this.template.playButton.innerHTML = this.icons.get('play');
         this.video.pause();
-        this.clearTime();
+        this.time.disable();
         this.container.classList.remove('dplayer-playing');
     }
 
@@ -658,6 +580,7 @@ class DPlayer {
         instances.splice(instances.indexOf(this), 1);
         this.pause();
         clearTimeout(this.hideTime);
+        this.time.destroy();
         this.video.src = '';
         this.container.innerHTML = '';
         this.events.trigger('destroy');
