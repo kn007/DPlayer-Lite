@@ -10,6 +10,7 @@ import FullScreen from './fullscreen';
 import Bar from './bar';
 import Time from './time';
 import Bezel from './bezel';
+import Controller from './controller';
 
 const instances = [];
 
@@ -34,11 +35,6 @@ class DPlayer {
 
         this.container.classList.add('dplayer');
 
-        if (isMobile) {
-            this.options.autoplay = false;
-            this.container.classList.add('dplayer-mobile');
-        }
-
         this.template = new Template({
             container: this.container,
             options: this.options,
@@ -51,6 +47,8 @@ class DPlayer {
         this.bar = new Bar(this.template);
 
         this.bezel = new Bezel(this.template.bezel);
+
+        this.controller = new Controller(this);
 
         document.addEventListener('click', () => {
             this.focus = false;
@@ -74,16 +72,14 @@ class DPlayer {
             });
         }
         else {
-            const toggleController = () => {
-                if (this.container.classList.contains('dplayer-hide-controller')) {
-                    this.container.classList.remove('dplayer-hide-controller');
-                }
-                else {
-                    this.container.classList.add('dplayer-hide-controller');
-                }
-            };
-            this.template.videoWrap.addEventListener('click', toggleController);
-            this.template.controllerMask.addEventListener('click', toggleController);
+            this.options.autoplay = false;
+            this.container.classList.add('dplayer-mobile');
+            this.template.videoWrap.addEventListener('click', () => {
+                this.controller.toggle();
+            });
+            this.template.controllerMask.addEventListener('click', () => {
+                this.controller.toggle();
+            });
         }
 
         this.time = new Time(this);
@@ -171,24 +167,6 @@ class DPlayer {
         });
 
         /**
-         * auto hide controller
-         */
-        this.hideTime = 0;
-        const hideController = () => {
-            this.container.classList.remove('dplayer-hide-controller');
-            clearTimeout(this.hideTime);
-            this.hideTime = setTimeout(() => {
-                if (this.video.played.length && !this.disableHideController) {
-                    this.container.classList.add('dplayer-hide-controller');
-                }
-            }, 1500);
-        };
-        if (!isMobile) {
-            this.container.addEventListener('mousemove', hideController);
-            this.container.addEventListener('click', hideController);
-        }
-
-        /**
          * loop control
          */
         this.loop = this.options.loop;
@@ -259,7 +237,7 @@ class DPlayer {
                 case 32:
                     event.preventDefault();
                     this.toggle();
-                    hideController();
+                    this.controller.setAutoHide();
                     break;
                 case 37:
                     event.preventDefault();
@@ -579,7 +557,7 @@ class DPlayer {
     destroy () {
         instances.splice(instances.indexOf(this), 1);
         this.pause();
-        clearTimeout(this.hideTime);
+        this.controller.destroy();
         this.time.destroy();
         this.video.src = '';
         this.container.innerHTML = '';
