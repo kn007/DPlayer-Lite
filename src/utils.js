@@ -16,7 +16,6 @@ module.exports = {
     /**
      * control play progress
      */
-    // get element's view position
     getElementViewLeft: (element) => {
         let actualLeft = element.offsetLeft;
         let current = element.offsetParent;
@@ -51,6 +50,20 @@ module.exports = {
         else {
             window.scrollTo(left, top);
         }
+    },
+
+    cumulativeOffset: (element) => {
+        let top = 0, left = 0;
+        do {
+            top += element.offsetTop || 0;
+            left += element.offsetLeft || 0;
+            element = element.offsetParent;
+        } while (element);
+
+        return {
+            top: top,
+            left: left
+        };
     },
 
     /**

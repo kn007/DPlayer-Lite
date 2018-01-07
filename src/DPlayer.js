@@ -11,6 +11,7 @@ import Bar from './bar';
 import Time from './time';
 import Bezel from './bezel';
 import Controller from './controller';
+import HotKey from './hotkey';
 
 const instances = [];
 
@@ -35,6 +36,11 @@ class DPlayer {
 
         this.container.classList.add('dplayer');
 
+        if (isMobile) {
+            this.options.autoplay = false;
+            this.container.classList.add('dplayer-mobile');
+        }
+
         this.template = new Template({
             container: this.container,
             options: this.options,
@@ -48,6 +54,8 @@ class DPlayer {
 
         this.bezel = new Bezel(this.template.bezel);
 
+        this.fullScreen = new FullScreen(this);
+
         this.controller = new Controller(this);
 
         document.addEventListener('click', () => {
@@ -57,114 +65,9 @@ class DPlayer {
             this.focus = true;
         }, true);
 
-        // play and pause button
         this.paused = true;
-        this.template.playButton.addEventListener('click', () => {
-            this.toggle();
-        });
-
-        if (!isMobile) {
-            this.template.videoWrap.addEventListener('click', () => {
-                this.toggle();
-            });
-            this.template.controllerMask.addEventListener('click', () => {
-                this.toggle();
-            });
-        }
-        else {
-            this.options.autoplay = false;
-            this.container.classList.add('dplayer-mobile');
-            this.template.videoWrap.addEventListener('click', () => {
-                this.controller.toggle();
-            });
-            this.template.controllerMask.addEventListener('click', () => {
-                this.controller.toggle();
-            });
-        }
 
         this.time = new Time(this);
-
-        this.isTimeTipsShow = true;
-        this.mouseHandler = this.mouseHandler(this.template.playedBarWrap, this.template.playedBarTime).bind(this);
-        this.template.playedBarWrap.addEventListener('mousemove', this.mouseHandler);
-        this.template.playedBarWrap.addEventListener('mouseleave', this.mouseHandler);
-
-        let barWidth;
-        const thumbMove = (e) => {
-            let percentage = (e.clientX - utils.getElementViewLeft(this.template.playedBarWrap)) / barWidth;
-            percentage = Math.max(percentage, 0);
-            percentage = Math.min(percentage, 1);
-            this.bar.set('played', percentage, 'width');
-            this.template.ptime.innerHTML = utils.secondToTime(percentage * this.video.duration);
-        };
-
-        const thumbUp = (e) => {
-            document.removeEventListener('mouseup', thumbUp);
-            document.removeEventListener('mousemove', thumbMove);
-            let percentage = (e.clientX - utils.getElementViewLeft(this.template.playedBarWrap)) / barWidth;
-            percentage = Math.max(percentage, 0);
-            percentage = Math.min(percentage, 1);
-            this.bar.set('played', percentage, 'width');
-            this.seek(this.bar.get('played') * this.video.duration);
-            this.time.enable('progress');
-        };
-
-        this.template.playedBarWrap.addEventListener('mousedown', () => {
-            barWidth = this.template.playedBarWrap.clientWidth;
-            this.time.disable('progress');
-            document.addEventListener('mousemove', thumbMove);
-            document.addEventListener('mouseup', thumbUp);
-        });
-
-        /**
-         * control volume
-         */
-        const vWidth = 35;
-
-        this.switchVolumeIcon = () => {
-            if (this.volume() >= 0.8) {
-                this.template.volumeIcon.innerHTML = this.icons.get('volume-up');
-            }
-            else if (this.volume() > 0) {
-                this.template.volumeIcon.innerHTML = this.icons.get('volume-down');
-            }
-            else {
-                this.template.volumeIcon.innerHTML = this.icons.get('volume-off');
-            }
-        };
-        const volumeMove = (event) => {
-            const e = event || window.event;
-            const percentage = (e.clientX - utils.getElementViewLeft(this.template.volumeBarWrap) - 5.5) / vWidth;
-            this.volume(percentage);
-        };
-        const volumeUp = () => {
-            document.removeEventListener('mouseup', volumeUp);
-            document.removeEventListener('mousemove', volumeMove);
-            this.template.volumeButton.classList.remove('dplayer-volume-active');
-        };
-
-        this.template.volumeBarWrapWrap.addEventListener('click', (event) => {
-            const e = event || window.event;
-            const percentage = (e.clientX - utils.getElementViewLeft(this.template.volumeBarWrap) - 5.5) / vWidth;
-            this.volume(percentage);
-        });
-        this.template.volumeBarWrapWrap.addEventListener('mousedown', () => {
-            document.addEventListener('mousemove', volumeMove);
-            document.addEventListener('mouseup', volumeUp);
-            this.template.volumeButton.classList.add('dplayer-volume-active');
-        });
-        this.template.volumeIcon.addEventListener('click', () => {
-            if (this.video.muted) {
-                this.video.muted = false;
-                this.switchVolumeIcon();
-                this.bar.set('volume', this.volume(), 'width');
-            }
-            else {
-                this.video.muted = true;
-                this.template.volumeIcon.innerHTML = this.icons.get('volume-off');
-                this.bar.set('volume', 0, 'width');
-            }
-        });
 
         /**
          * loop control
@@ -196,11 +99,6 @@ class DPlayer {
             this.events.trigger('loop_disable');
         }
 
-        // set duration time
-        if (this.video.duration !== 1) { // compatibility: Android browsers will output 1 at first
-            this.template.dtime.innerHTML = this.video.duration ? utils.secondToTime(this.video.duration) : '00:00';
-        }
-
         // autoplay
         if (this.options.autoplay && !isMobile) {
             this.play();
@@ -209,58 +107,7 @@ class DPlayer {
             this.pause();
         }
 
-        this.fullScreen = new FullScreen(this);
-
-        // browser full screen
-        this.template.browserFullButton.addEventListener('click', () => {
-            this.fullScreen.toggle('browser');
-        });
-
-        // web page full screen
-        this.template.webFullButton.addEventListener('click', () => {
-            this.fullScreen.toggle('web');
-        });
-
-        /**
-         * hot key
-         */
-        const handleKeyDown = (e) => {
-            if (this.focus) {
-                const event = e || window.event;
-                let percentage;
-                switch (event.keyCode) {
-                case 27:
-                    if (this.fullScreen.isFullScreen('web')) {
-                        this.fullScreen.cancel('web');
-                    }
-                    break;
-                case 32:
-                    event.preventDefault();
-                    this.toggle();
-                    this.controller.setAutoHide();
-                    break;
-                case 37:
-                    event.preventDefault();
-                    this.seek(this.video.currentTime - 3, true);
-                    break;
-                case 39:
-                    event.preventDefault();
-                    this.seek(this.video.currentTime + 3, true);
-                    break;
-                case 38:
-                    event.preventDefault();
-                    percentage = this.volume() + 0.01;
-                    this.volume(percentage, true);
-                    break;
-                case 40:
-                    event.preventDefault();
-                    percentage = this.volume() - 0.01;
-                    this.volume(percentage, true);
-                    break;
-                }
-            }
-        };
-        document.addEventListener('keydown', handleKeyDown);
+        this.hotkey = new HotKey(this);
 
         /**
          * right key
@@ -334,6 +181,18 @@ class DPlayer {
         this.video.pause();
         this.time.disable();
         this.container.classList.remove('dplayer-playing');
+    }
+
+    switchVolumeIcon () {
+        if (this.volume() >= 0.8) {
+            this.template.volumeIcon.innerHTML = this.icons.get('volume-up');
+        }
+        else if (this.volume() > 0) {
+            this.template.volumeIcon.innerHTML = this.icons.get('volume-down');
+        }
+        else {
+            this.template.volumeIcon.innerHTML = this.icons.get('volume-off');
+        }
     }
 
     /**
@@ -478,63 +337,6 @@ class DPlayer {
         }
 
         this.volume(this.options.volume);
-    }
-
-    mouseHandler (pbar, timeTips) {
-        // http://stackoverflow.com/questions/1480133/how-can-i-get-an-objects-absolute-position-on-the-page-in-javascript
-        const cumulativeOffset = (element) => {
-            let top = 0, left = 0;
-            do {
-                top += element.offsetTop || 0;
-                left += element.offsetLeft || 0;
-                element = element.offsetParent;
-            } while (element);
-
-            return {
-                top: top,
-                left: left
-            };
-        };
-
-        return (e) => {
-            if (!this.video.duration) {
-                return;
-            }
-            const { clientX } = e;
-            const px = cumulativeOffset(pbar).left;
-            const tx = clientX - px;
-            if (tx < 0 || tx > pbar.offsetWidth) {
-                return;
-            }
-            const time = this.video.duration * (tx / pbar.offsetWidth);
-            timeTips.style.left = `${(tx - 20)}px`;
-
-            switch (e.type) {
-            case 'mousemove':
-                timeTips.innerText = utils.secondToTime(time);
-                this.timeTipsDisplay(true, timeTips);
-                break;
-            case 'mouseleave':
-                this.timeTipsDisplay(false, timeTips);
-                break;
-            }
-        };
-    }
-
-    timeTipsDisplay (show, timeTips) {
-        if (show) {
-            if (this.isTimeTipsShow) {
-                return;
-            }
-            timeTips.classList.remove('hidden');
-            this.isTimeTipsShow = true;
-        } else {
-            if (!this.isTimeTipsShow) {
-                return;
-            }
-            timeTips.classList.add('hidden');
-            this.isTimeTipsShow = false;
-        }
     }
 
     notice (text, time = 1500, opacity = 0.8) {
