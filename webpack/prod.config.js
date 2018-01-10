@@ -8,7 +8,7 @@ module.exports = {
     bail: true,
 
     entry: {
-        'DPlayer': './src/index.js'
+        'DPlayer': './src/js/index.js'
     },
 
     output: {
@@ -16,6 +16,7 @@ module.exports = {
         filename: '[name].min.js',
         library: '[name]',
         libraryTarget: 'umd',
+        libraryExport: 'default',
         umdNamedDefine: true,
         publicPath: '/'
     },
@@ -32,7 +33,7 @@ module.exports = {
                 test: /\.js$/,
                 enforce: 'pre',
                 loader: require.resolve('eslint-loader'),
-                include: path.resolve(__dirname, '../src'),
+                include: path.resolve(__dirname, '../src/js'),
             },
             {
                 test: /\.js$/,
