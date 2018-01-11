@@ -1,3 +1,3 @@
 require('../css/index.scss');
-import DPlayer from './DPlayer';
+import DPlayer from './player';
 export default DPlayer;

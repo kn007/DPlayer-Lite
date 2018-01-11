@@ -1,5 +1,5 @@
 ## Introduction
-DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.17.4 71ed391.
+DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.18.1 ec160d1.
 
 ![dplayer-lite-preview](https://user-images.githubusercontent.com/6196903/33885965-eed74a92-df7f-11e7-9a18-d8e53b522c3f.png)
 

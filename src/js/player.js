@@ -1,4 +1,4 @@
-import utils, { isMobile } from './utils';
+import utils from './utils';
 import handleOption from './options';
 import i18n from './i18n';
 import Template from './template';
@@ -34,7 +34,7 @@ class DPlayer {
 
         this.container.classList.add('dplayer');
 
-        if (isMobile) {
+        if (utils.isMobile) {
             this.options.autoplay = false;
             this.container.classList.add('dplayer-mobile');
         }
@@ -67,6 +67,10 @@ class DPlayer {
 
         this.time = new Time(this);
 
+        this.hotkey = new HotKey(this);
+
+        this.initVideo(this.video, this.options.video.type);
+
         /**
          * loop control
          */
@@ -98,14 +102,12 @@ class DPlayer {
         }
 
         // autoplay
-        if (this.options.autoplay && !isMobile) {
+        if (this.options.autoplay && !utils.isMobile) {
             this.play();
         }
-        else if (isMobile) {
+        else if (utils.isMobile) {
             this.pause();
         }
-
-        this.hotkey = new HotKey(this);
 
         /**
          * right key
@@ -114,8 +116,6 @@ class DPlayer {
             const event = e || window.event;
             event.preventDefault();
         });
-
-        this.initVideo(this.video, this.options.video.type);
 
         instances.push(this);
     }

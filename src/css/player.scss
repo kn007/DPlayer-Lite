@@ -1,0 +1,77 @@
+.dplayer {
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    line-height: 1;
+    * {
+        box-sizing: content-box;
+    }
+    &:-webkit-full-screen {
+        width: 100%;
+        height: 100%;
+        background: #000;
+        position: fixed;
+        z-index: 100000;
+        left: 0;
+        top: 0;
+    }
+    &.dplayer-playing {
+        @media (min-width: 900px) {
+            .dplayer-controller-mask {
+                opacity: 0;
+            }
+            .dplayer-controller {
+                opacity: 0;
+            }
+
+            &:hover {
+                .dplayer-controller-mask {
+                    opacity: 1;
+                }
+                .dplayer-controller {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+    &.dplayer-loading {
+        .dplayer-bezel .diplayer-loading-icon {
+            display: block;
+        }
+    }
+    &.dplayer-hide-controller {
+        cursor: none;
+
+        .dplayer-controller-mask {
+            opacity: 0;
+            transform: translateY(100%);
+        }
+        .dplayer-controller {
+            opacity: 0;
+            transform: translateY(100%);
+        }
+    }
+    &.dplayer-fulled {
+        position: fixed;
+        z-index: 100000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+    }
+    &.dplayer-mobile .dplayer-controller .dplayer-icons {
+        .dplayer-volume,
+        .dplayer-full-in {
+            display: none;
+        }
+    }
+}
+
+// To hide scroll bar, apply this class to <body>
+.dplayer-web-fullscreen-fix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+}
