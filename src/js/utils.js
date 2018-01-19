@@ -1,4 +1,6 @@
-export default {
+const isMobile = /mobile/i.test(window.navigator.userAgent);
+
+const utils = {
 
     /**
     * Parse second to 00:00 format
@@ -52,6 +54,12 @@ export default {
         }
     },
 
+    isMobile: isMobile,
+
+    isFirefox: /firefox/i.test(window.navigator.userAgent),
+
+    isChrome: /chrome/i.test(window.navigator.userAgent),
+
     cumulativeOffset: (element) => {
         let top = 0, left = 0;
         do {
@@ -66,13 +74,11 @@ export default {
         };
     },
 
-    /**
-     * check if user is using mobile or not
-     */
-    isMobile: /mobile/i.test(window.navigator.userAgent),
-
-    isFirefox: /firefox/i.test(window.navigator.userAgent),
-
-    isChrome: /chrome/i.test(window.navigator.userAgent)
-
+    nameMap: {
+        dragStart: isMobile ? 'touchstart' : 'mousedown',
+        dragMove: isMobile ? 'touchmove' : 'mousemove',
+        dragEnd: isMobile ? 'touchend' : 'mouseup'
+    }
 };
+
+export default utils;

@@ -52,13 +52,12 @@ export default (options) => {
             options[defaultKey] = defaultOption[defaultKey];
         }
     }
+    if (options.video) {
+        !options.video.type && (options.video.type = 'auto');
+    }
 
     if (options.lang) {
         options.lang = options.lang.toLowerCase();
-    }
-
-    if (options.video) {
-        !options.video.type && (options.video.type = 'auto');
     }
 
     return options;

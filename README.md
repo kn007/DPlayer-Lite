@@ -1,5 +1,5 @@
 ## Introduction
-DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.18.1 ec160d1.
+DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.21.0 d753f82.
 
 ![dplayer-lite-preview](https://user-images.githubusercontent.com/6196903/33885965-eed74a92-df7f-11e7-9a18-d8e53b522c3f.png)
 
@@ -9,6 +9,8 @@ DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.18.1 ec
 	- [HLS](https://github.com/video-dev/hls.js)
 	- [FLV](https://github.com/Bilibili/flv.js)
 	- [DASH](https://github.com/Dash-Industry-Forum/dash.js)
+	- [WebTorrent](https://github.com/webtorrent/webtorrent)
+	- Any other custom streaming formats
 - Media Formats
 	- MP4 H.264
 	- WebM
@@ -31,7 +33,7 @@ volume | 1 | default volume
 video | undefined | video info
 video.url | undefined | video link
 video.pic | undefined | video poster
-video.type | 'auto' | 'flv' for flv format, 'hls' for m3u8 format, 'dash' for mpd format, 'normal' for mp4 ogg and webm format, 'auto' for automatic detection according to video suffix
+video.type | 'auto' | 'flv' for flv format, 'hls' for m3u8 format, 'dash' for mpd format, 'webtorrent' for torrent file, 'normal' for mp4 ogg and webm format, 'auto' for automatic detection according to video suffix
 icons | [options.js#L12](https://github.com/kn007/DPlayer-Lite/blob/DPlayer-Lite/src/options.js#L12) | UI icons
 mutex | true | pause other players when this player start play
 iconsColor | #ffffff | player icons color
