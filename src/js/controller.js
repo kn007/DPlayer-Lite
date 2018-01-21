@@ -9,10 +9,10 @@ class Controller {
             this.player.container.addEventListener('mousemove', () => {
                 this.setAutoHide();
             });
-            this.player.container.addEventListener('click', () => {
-                this.setAutoHide();
-            });
         }
+        this.player.container.addEventListener('click', () => {
+            this.setAutoHide();
+        });
         this.player.on('play', () => {
             this.setAutoHide();
         });
@@ -89,6 +89,7 @@ class Controller {
                 this.player.template.playedBarTime.innerText = utils.secondToTime(time);
                 this.player.template.playedBarTime.classList.remove('hidden');
             }
+            this.setAutoHide();
         });
 
         if (!utils.isMobile) {
