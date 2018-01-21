@@ -12,13 +12,13 @@ class Controller {
             this.player.container.addEventListener('click', () => {
                 this.setAutoHide();
             });
-            this.player.on('play', () => {
-                this.setAutoHide();
-            });
-            this.player.on('pause', () => {
-                this.setAutoHide();
-            });
         }
+        this.player.on('play', () => {
+            this.setAutoHide();
+        });
+        this.player.on('pause', () => {
+            this.setAutoHide();
+        });
 
         this.initPlayButton();
         this.initPlayedBar();
@@ -91,17 +91,19 @@ class Controller {
             }
         });
 
-        this.player.template.playedBarWrap.addEventListener('mouseenter', () => {
-            if (this.player.video.duration) {
-                this.player.template.playedBarTime.classList.remove('hidden');
-            }
-        });
+        if (!utils.isMobile) {
+            this.player.template.playedBarWrap.addEventListener('mouseenter', () => {
+                if (this.player.video.duration) {
+                    this.player.template.playedBarTime.classList.remove('hidden');
+                }
+            });
 
-        this.player.template.playedBarWrap.addEventListener('mouseleave', () => {
-            if (this.player.video.duration) {
-                this.player.template.playedBarTime.classList.add('hidden');
-            }
-        });
+            this.player.template.playedBarWrap.addEventListener('mouseleave', () => {
+                if (this.player.video.duration) {
+                    this.player.template.playedBarTime.classList.add('hidden');
+                }
+            });
+        }
     }
 
     initFullButton () {
