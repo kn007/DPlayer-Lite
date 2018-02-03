@@ -162,7 +162,7 @@ class Controller {
             if (this.player.video.played.length) {
                 this.hide();
             }
-        }, 2000);
+        }, 3000);
     }
 
     show () {

@@ -154,6 +154,7 @@ class DPlayer {
         }).then(() => {
         });
         this.time.enable();
+        this.container.classList.remove('dplayer-paused');
         this.container.classList.add('dplayer-playing');
         if (this.options.mutex) {
             for (let i = 0; i < instances.length; i++) {
@@ -180,6 +181,7 @@ class DPlayer {
         this.video.pause();
         this.time.disable();
         this.container.classList.remove('dplayer-playing');
+        this.container.classList.add('dplayer-paused');
     }
 
     switchVolumeIcon () {
