@@ -65,38 +65,15 @@ class Time {
     }
 
     enable (type) {
-        if (type) {
-            this[`enable${type}Checker`] = true;
-        }
-        else {
-            for (let i = 0; i < this.types.length; i++) {
-                const type = this.types[i];
-                this[`enable${type}Checker`] = true;
-            }
-        }
+        this[`enable${type}Checker`] = true;
     }
 
     disable (type) {
-        if (type) {
-            this[`enable${type}Checker`] = false;
-        }
-        else {
-            for (let i = 0; i < this.types.length; i++) {
-                const type = this.types[i];
-                this[`enable${type}Checker`] = false;
-            }
-        }
+        this[`enable${type}Checker`] = false;
     }
 
     destroy (type) {
-        if (type) {
-            clearInterval(this[`${type}Checker`]);
-        }
-        else {
-            for (let i = 0; i < this.types.length; i++) {
-                clearInterval(this[`${this.types[i]}Checker`]);
-            }
-        }
+        this[`${type}Checker`] && clearInterval(this[`${type}Checker`]);
     }
 }
 
