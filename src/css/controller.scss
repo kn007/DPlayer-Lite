@@ -28,13 +28,6 @@
                 transform: scale(1);
             }
         }
-        .dplayer-bar-preview {
-            position: absolute;
-            background: #fff;
-            pointer-events: none;
-            display: none;
-            background-size: auto 100%;
-        }
         .dplayer-bar-time {
             &.hidden {
                 opacity: 0;

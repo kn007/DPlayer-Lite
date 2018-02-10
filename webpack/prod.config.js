@@ -84,7 +84,10 @@ module.exports = {
             },
             {
                 test: /\.art$/,
-                loader: 'art-template-loader'
+                loader: 'art-template-loader',
+                options: {
+                    minimize: true
+                }
             }
         ]
     },
