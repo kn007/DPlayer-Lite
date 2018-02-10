@@ -4,7 +4,7 @@ import utils from './utils';
 import handleOption from './options';
 import i18n from './i18n';
 import Template from './template';
-import SvgCollection from './svg';
+import Icons from './icons';
 import Events from './events';
 import FullScreen from './fullscreen';
 import Bar from './bar';
@@ -28,8 +28,6 @@ class DPlayer {
 
         this.tran = new i18n(this.options.lang).tran;
 
-        this.icons = new SvgCollection(this.options);
-
         this.events = new Events();
 
         this.container = this.options.container;
@@ -43,8 +41,7 @@ class DPlayer {
         this.template = new Template({
             container: this.container,
             options: this.options,
-            tran: this.tran,
-            icons: this.icons
+            tran: this.tran
         });
 
         this.video = this.template.video;
@@ -143,10 +140,10 @@ class DPlayer {
     play () {
         this.paused = false;
         if (this.video.paused) {
-            this.bezel.switch(this.icons.get('play'));
+            this.bezel.switch(Icons.play);
         }
 
-        this.template.playButton.innerHTML = this.icons.get('pause');
+        this.template.playButton.innerHTML = Icons.pause;
 
         const playedPromise = Promise.resolve(this.video.play());
         playedPromise.catch(() => {
@@ -173,11 +170,11 @@ class DPlayer {
         this.container.classList.remove('dplayer-loading');
 
         if (!this.video.paused) {
-            this.bezel.switch(this.icons.get('pause'));
+            this.bezel.switch(Icons.pause);
         }
 
         this.ended = false;
-        this.template.playButton.innerHTML = this.icons.get('play');
+        this.template.playButton.innerHTML = Icons.play;
         this.video.pause();
         this.time.disable('loading');
         this.time.disable('progress');
@@ -186,13 +183,13 @@ class DPlayer {
 
     switchVolumeIcon () {
         if (this.volume() >= 0.8) {
-            this.template.volumeIcon.innerHTML = this.icons.get('volume-up');
+            this.template.volumeIcon.innerHTML = Icons.volumeUp;
         }
         else if (this.volume() > 0) {
-            this.template.volumeIcon.innerHTML = this.icons.get('volume-down');
+            this.template.volumeIcon.innerHTML = Icons.volumeDown;
         }
         else {
-            this.template.volumeIcon.innerHTML = this.icons.get('volume-off');
+            this.template.volumeIcon.innerHTML = Icons.volumeOff;
         }
     }
 
