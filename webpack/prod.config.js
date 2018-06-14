@@ -1,9 +1,10 @@
 /* eslint-disable no-undef */
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
+
+    mode: 'production',
 
     bail: true,
 
@@ -32,15 +33,15 @@ module.exports = {
             {
                 test: /\.js$/,
                 enforce: 'pre',
-                loader: require.resolve('eslint-loader'),
+                loader: 'eslint-loader',
                 include: path.resolve(__dirname, '../src/js'),
             },
             {
                 test: /\.js$/,
                 use: [
-                    require.resolve('template-string-optimize-loader'),
+                    'template-string-optimize-loader',
                     {
-                        loader: require.resolve('babel-loader'),
+                        loader: 'babel-loader',
                         options: {
                             compact: true,
                             presets: ['env']
@@ -51,9 +52,9 @@ module.exports = {
             {
                 test: /\.scss$/,
                 use: [
-                    require.resolve('style-loader'),
+                    'style-loader',
                     {
-                        loader: require.resolve('css-loader'),
+                        loader: 'css-loader',
                         options: {
                             importLoaders: 1,
                             minimize: true,
@@ -61,19 +62,19 @@ module.exports = {
                         }
                     },
                     {
-                        loader: require.resolve('postcss-loader'),
+                        loader: 'postcss-loader',
                         options: {
                             config: {
                                 path: path.join(__dirname, 'postcss.config.js')
                             }
                         }
                     },
-                    require.resolve('sass-loader')
+                    'sass-loader',
                 ]
             },
             {
                 test: /\.(png|jpg)$/,
-                loader: require.resolve('url-loader'),
+                loader: 'url-loader',
                 options: {
                     'limit': 40000
                 }
@@ -84,25 +85,12 @@ module.exports = {
             },
             {
                 test: /\.art$/,
-                loader: 'art-template-loader',
-                options: {
-                    minimize: true
-                }
+                loader: 'art-template-loader'
             }
         ]
     },
 
     plugins: [
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false
-            },
-            output: {
-                comments: false,
-                ascii_only: true
-            },
-            sourceMap: false
-        })
     ],
 
     node: {

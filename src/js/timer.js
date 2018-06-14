@@ -1,6 +1,4 @@
-import utils from './utils';
-
-class Time {
+class Timer {
     constructor (player) {
         this.player = player;
 
@@ -15,16 +13,16 @@ class Time {
             }
         )();
 
-        this.types = ['loading', 'progress'];
+        this.types = ['loading'];
 
         this.init();
     }
 
     init () {
-        for (let i = 0; i < this.types.length; i++) {
-            const type = this.types[i];
-            this[`init${type}Checker`]();
-        }
+        this.types.map((item) => {
+            this[`init${item}Checker`]();
+            return item;
+        });
     }
 
     initloadingChecker () {
@@ -52,18 +50,6 @@ class Time {
         }, 100);
     }
 
-    initprogressChecker () {
-        this.progressChecker = setInterval(() => {
-            if (this.enableprogressChecker) {
-                this.player.bar.set('played', this.player.video.currentTime / this.player.video.duration, 'width');
-                const currentTime = utils.secondToTime(this.player.video.currentTime);
-                if (this.player.template.ptime.innerHTML !== currentTime) {
-                    this.player.template.ptime.innerHTML = utils.secondToTime(this.player.video.currentTime);
-                }
-            }
-        }, 100);
-    }
-
     enable (type) {
         this[`enable${type}Checker`] = true;
     }
@@ -72,9 +58,13 @@ class Time {
         this[`enable${type}Checker`] = false;
     }
 
-    destroy (type) {
-        this[`${type}Checker`] && clearInterval(this[`${type}Checker`]);
+    destroy () {
+        this.types.map((item) => {
+            this[`enable${item}Checker`] = false;
+            this[`${item}Checker`] && clearInterval(this[`${item}Checker`]);
+            return item;
+        });
     }
 }
 
-export default Time;
+export default Timer;
