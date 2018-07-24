@@ -3,6 +3,7 @@
     overflow: hidden;
     user-select: none;
     line-height: 1;
+
     * {
         box-sizing: content-box;
     }
@@ -25,6 +26,9 @@
         z-index: 100000;
         left: 0;
         top: 0;
+        margin: 0;
+        padding: 0;
+        transform: translate(0, 0);
     }
     &.dplayer-playing {
         @media (min-width: 900px) {

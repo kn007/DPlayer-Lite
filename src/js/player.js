@@ -363,7 +363,7 @@ class DPlayer {
 
         // video download error: an error occurs
         this.on('error', () => {
-            this.tran && this.notice && this.type !== 'webtorrent' & this.notice(this.tran('This video fails to load'), -1);
+            this.tran && this.notice && this.type !== 'webtorrent' & this.notice(this.tran('Video load failed'), -1);
         });
 
         // video end
@@ -414,10 +414,12 @@ class DPlayer {
             clearTimeout(this.noticeTime);
         }
         this.events.trigger('notice_show', text);
-        this.noticeTime = setTimeout(() => {
-            this.template.notice.style.opacity = 0;
-            this.events.trigger('notice_hide');
-        }, time);
+        if (time > 0) {
+            this.noticeTime = setTimeout(() => {
+                this.template.notice.style.opacity = 0;
+                this.events.trigger('notice_hide');
+            }, time);
+        }
     }
 
     resize () {

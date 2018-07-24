@@ -22,14 +22,14 @@ function i18n (lang) {
 // add translation text here
 const tranTxt = {
     'zh-cn' : {
-        'This video fails to load': '视频加载失败',
+        'Video load failed': '视频加载失败',
         'Go forward': '快进',
         'Go back': '快退',
         'seconds': '秒',
         'Volume': '音量',
     },
     'zh-tw' : {
-        'This video fails to load': '視頻加載失敗',
+        'Video load failed': '視頻加載失敗',
         'Go forward': '快進',
         'Go back': '快退',
         'seconds': '秒',
