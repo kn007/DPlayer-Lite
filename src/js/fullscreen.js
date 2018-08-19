@@ -27,6 +27,7 @@ class FullScreen {
             if (fullEle && fullEle !== this.player.container) {
                 return;
             }
+            this.player.resize();
             if (fullEle) {
                 this.player.events.trigger('fullscreen');
             } else {
