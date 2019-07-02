@@ -84,7 +84,7 @@ class Controller {
                     return;
                 }
                 const time = this.player.video.duration * (tx / this.player.template.playedBarWrap.offsetWidth);
-                this.player.template.playedBarTime.style.left = `${(tx - 20)}px`;
+                this.player.template.playedBarTime.style.left = `${(tx - (time >= 3600 ? 25 : 20))}px`;
                 this.player.template.playedBarTime.innerText = utils.secondToTime(time);
                 this.player.template.playedBarTime.classList.remove('hidden');
             }
