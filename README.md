@@ -1,5 +1,5 @@
 ## Introduction
-DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.25.0 ecc2411.
+DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.25.0 1ff15c8.
 
 ![dplayer-lite-preview](https://user-images.githubusercontent.com/6196903/33885965-eed74a92-df7f-11e7-9a18-d8e53b522c3f.png)
 
@@ -8,7 +8,7 @@ DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.25.0 ec
 - Streaming Formats
 	- [HLS](https://github.com/video-dev/hls.js)
 	- [FLV](https://github.com/Bilibili/flv.js)
-	- [DASH](https://github.com/Dash-Industry-Forum/dash.js)
+	- [MPEG DASH](https://github.com/Dash-Industry-Forum/dash.js)
 	- [WebTorrent](https://github.com/webtorrent/webtorrent)
 	- Any other custom streaming formats
 - Media Formats

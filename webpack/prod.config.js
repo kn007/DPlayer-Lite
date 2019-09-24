@@ -1,6 +1,7 @@
-/* eslint-disable no-undef */
 const path = require('path');
 const webpack = require('webpack');
+const autoprefixer = require('autoprefixer');
+const cssnano = require('cssnano');
 
 module.exports = {
 
@@ -9,7 +10,7 @@ module.exports = {
     bail: true,
 
     entry: {
-        'DPlayer': './src/js/index.js'
+        DPlayer: './src/js/index.js'
     },
 
     output: {
@@ -30,12 +31,6 @@ module.exports = {
     module: {
         strictExportPresence: true,
         rules: [
-            {
-                test: /\.js$/,
-                enforce: 'pre',
-                loader: 'eslint-loader',
-                include: path.resolve(__dirname, '../src/js'),
-            },
             {
                 test: /\.js$/,
                 use: [
@@ -63,9 +58,7 @@ module.exports = {
                     {
                         loader: 'postcss-loader',
                         options: {
-                            config: {
-                                path: path.join(__dirname, 'postcss.config.js')
-                            }
+                            plugins: [autoprefixer, cssnano]
                         }
                     },
                     'sass-loader',
@@ -75,7 +68,7 @@ module.exports = {
                 test: /\.(png|jpg)$/,
                 loader: 'url-loader',
                 options: {
-                    'limit': 40000
+                    limit: 40000
                 }
             },
             {

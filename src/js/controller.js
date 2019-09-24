@@ -2,7 +2,7 @@ import utils from './utils';
 import Icons from './icons';
 
 class Controller {
-    constructor (player) {
+    constructor(player) {
         this.player = player;
 
         this.autoHideTimer = 0;
@@ -29,7 +29,7 @@ class Controller {
         }
     }
 
-    initPlayButton () {
+    initPlayButton() {
         this.player.template.playButton.addEventListener('click', () => {
             this.player.toggle();
         });
@@ -41,8 +41,7 @@ class Controller {
             this.player.template.controllerMask.addEventListener('click', () => {
                 this.player.toggle();
             });
-        }
-        else {
+        } else {
             this.player.template.videoWrap.addEventListener('click', () => {
                 this.toggle();
             });
@@ -52,7 +51,7 @@ class Controller {
         }
     }
 
-    initPlayedBar () {
+    initPlayedBar() {
         const thumbMove = (e) => {
             let percentage = ((e.clientX || e.changedTouches[0].clientX) - utils.getBoundingClientRectViewLeft(this.player.template.playedBarWrap)) / this.player.template.playedBarWrap.clientWidth;
             percentage = Math.max(percentage, 0);
@@ -69,22 +68,24 @@ class Controller {
             percentage = Math.min(percentage, 1);
             this.player.bar.set('played', percentage, 'width');
             this.player.seek(this.player.bar.get('played') * this.player.video.duration);
+            this.player.timer.enable('progress');
         };
 
         this.player.template.playedBarWrap.addEventListener(utils.nameMap.dragStart, () => {
+            this.player.timer.disable('progress');
             document.addEventListener(utils.nameMap.dragMove, thumbMove);
             document.addEventListener(utils.nameMap.dragEnd, thumbUp);
         });
 
         this.player.template.playedBarWrap.addEventListener(utils.nameMap.dragMove, (e) => {
             if (this.player.video.duration) {
-                const px = utils.cumulativeOffset(this.player.template.playedBarWrap).left;
+                const px = this.player.template.playedBarWrap.getBoundingClientRect().left;
                 const tx = (e.clientX || e.changedTouches[0].clientX) - px;
                 if (tx < 0 || tx > this.player.template.playedBarWrap.offsetWidth) {
                     return;
                 }
                 const time = this.player.video.duration * (tx / this.player.template.playedBarWrap.offsetWidth);
-                this.player.template.playedBarTime.style.left = `${(tx - (time >= 3600 ? 25 : 20))}px`;
+                this.player.template.playedBarTime.style.left = `${tx - (time >= 3600 ? 25 : 20)}px`;
                 this.player.template.playedBarTime.innerText = utils.secondToTime(time);
                 this.player.template.playedBarTime.classList.remove('hidden');
             }
@@ -106,7 +107,7 @@ class Controller {
         }
     }
 
-    initFullButton () {
+    initFullButton() {
         this.player.template.browserFullButton.addEventListener('click', () => {
             this.player.fullScreen.toggle('browser');
         });
@@ -116,7 +117,7 @@ class Controller {
         });
     }
 
-    initVolumeButton () {
+    initVolumeButton() {
         const vWidth = 35;
 
         const volumeMove = (event) => {
@@ -145,8 +146,7 @@ class Controller {
                 this.player.video.muted = false;
                 this.player.switchVolumeIcon();
                 this.player.bar.set('volume', this.player.volume(), 'width');
-            }
-            else {
+            } else {
                 this.player.video.muted = true;
                 this.player.template.volumeIcon.innerHTML = Icons.volumeOff;
                 this.player.bar.set('volume', 0, 'width');
@@ -154,7 +154,7 @@ class Controller {
         });
     }
 
-    setAutoHide () {
+    setAutoHide() {
         this.show();
         clearTimeout(this.autoHideTimer);
         this.autoHideTimer = setTimeout(() => {
@@ -164,28 +164,27 @@ class Controller {
         }, 3000);
     }
 
-    show () {
+    show() {
         this.player.container.classList.remove('dplayer-hide-controller');
     }
 
-    hide () {
+    hide() {
         this.player.container.classList.add('dplayer-hide-controller');
     }
 
-    isShow () {
+    isShow() {
         return !this.player.container.classList.contains('dplayer-hide-controller');
     }
 
-    toggle () {
+    toggle() {
         if (this.isShow()) {
             this.hide();
-        }
-        else {
+        } else {
             this.show();
         }
     }
 
-    destroy () {
+    destroy() {
         clearTimeout(this.autoHideTimer);
     }
 }

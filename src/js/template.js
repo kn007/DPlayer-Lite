@@ -2,14 +2,14 @@ import Icons from './icons';
 import tplPlayer from '../template/player.art';
 
 class Template {
-    constructor (options) {
+    constructor(options) {
         this.container = options.container;
         this.options = options.options;
         this.tran = options.tran;
         this.init();
     }
 
-    init () {
+    init() {
         this.container.innerHTML = tplPlayer({
             options: this.options,
             tran: this.tran,

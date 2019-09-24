@@ -9,7 +9,8 @@ export default (options) => {
         preload: 'auto',
         volume: 1,
         video: {},
-        mutex: true
+        mutex: true,
+        pluginOptions: { hls: {}, flvjs: {}, dash: {}, webtorrent: {} },
     };
 
     for (const defaultKey in defaultOption) {

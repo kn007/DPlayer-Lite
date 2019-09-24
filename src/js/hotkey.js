@@ -1,5 +1,5 @@
 class HotKey {
-    constructor (player) {
+    constructor(player) {
         document.addEventListener('keydown', (e) => {
             if (player.focus) {
                 const event = e || window.event;

@@ -1,5 +1,5 @@
 class Timer {
-    constructor (player) {
+    constructor(player) {
         this.player = player;
 
         window.requestAnimationFrame = (() =>
@@ -8,24 +8,23 @@ class Timer {
             window.mozRequestAnimationFrame ||
             window.oRequestAnimationFrame ||
             window.msRequestAnimationFrame ||
-            function (callback) {
+            function(callback) {
                 window.setTimeout(callback, 1000 / 60);
-            }
-        )();
+            })();
 
         this.types = ['loading'];
 
         this.init();
     }
 
-    init () {
+    init() {
         this.types.map((item) => {
             this[`init${item}Checker`]();
             return item;
         });
     }
 
-    initloadingChecker () {
+    initloadingChecker() {
         let lastPlayPos = 0;
         let currentPlayPos = 0;
         let bufferingDetected = false;
@@ -33,15 +32,11 @@ class Timer {
             if (this.enableloadingChecker) {
                 // whether the video is buffering
                 currentPlayPos = this.player.video.currentTime;
-                if (!bufferingDetected
-                    && currentPlayPos === lastPlayPos
-                    && !this.player.video.paused) {
+                if (!bufferingDetected && currentPlayPos === lastPlayPos && !this.player.video.paused) {
                     this.player.container.classList.add('dplayer-loading');
                     bufferingDetected = true;
                 }
-                if (bufferingDetected
-                    && currentPlayPos > lastPlayPos
-                    && !this.player.video.paused) {
+                if (bufferingDetected && currentPlayPos > lastPlayPos && !this.player.video.paused) {
                     this.player.container.classList.remove('dplayer-loading');
                     bufferingDetected = false;
                 }
@@ -50,15 +45,15 @@ class Timer {
         }, 100);
     }
 
-    enable (type) {
+    enable(type) {
         this[`enable${type}Checker`] = true;
     }
 
-    disable (type) {
+    disable(type) {
         this[`enable${type}Checker`] = false;
     }
 
-    destroy () {
+    destroy() {
         this.types.map((item) => {
             this[`enable${item}Checker`] = false;
             this[`${item}Checker`] && clearInterval(this[`${item}Checker`]);

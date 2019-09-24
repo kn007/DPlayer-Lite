@@ -16,15 +16,14 @@ import HotKey from './hotkey';
 const instances = [];
 
 class DPlayer {
-
     /**
      * DPlayer constructor function
      *
      * @param {Object} options - See README
      * @constructor
      */
-    constructor (options) {
-        this.options = handleOption(options);
+    constructor(options) {
+        this.options = handleOption({ preload: options.video.type === 'webtorrent' ? 'none' : 'metadata', ...options });
 
         this.tran = new i18n(this.options.lang).tran;
 
@@ -54,12 +53,22 @@ class DPlayer {
 
         this.controller = new Controller(this);
 
-        document.addEventListener('click', () => {
-            this.focus = false;
-        }, true);
-        this.container.addEventListener('click', () => {
-            this.focus = true;
-        }, true);
+        this.plugins = {};
+
+        document.addEventListener(
+            'click',
+            () => {
+                this.focus = false;
+            },
+            true
+        );
+        this.container.addEventListener(
+            'click',
+            () => {
+                this.focus = true;
+            },
+            true
+        );
 
         this.paused = true;
 
@@ -138,7 +147,7 @@ class DPlayer {
     /**
      * Play video
      */
-    play () {
+    play() {
         this.paused = false;
         if (this.video.paused) {
             this.bezel.switch(Icons.play);
@@ -147,10 +156,11 @@ class DPlayer {
         this.template.playButton.innerHTML = Icons.pause;
 
         const playedPromise = Promise.resolve(this.video.play());
-        playedPromise.catch(() => {
-            this.pause();
-        }).then(() => {
-        });
+        playedPromise
+            .catch(() => {
+                this.pause();
+            })
+            .then(() => {});
         this.timer.enable('loading');
         this.container.classList.add('dplayer-playing');
         if (this.options.mutex) {
@@ -165,7 +175,7 @@ class DPlayer {
     /**
      * Pause video
      */
-    pause () {
+    pause() {
         this.paused = true;
         this.container.classList.remove('dplayer-loading');
 
@@ -179,14 +189,12 @@ class DPlayer {
         this.container.classList.remove('dplayer-playing');
     }
 
-    switchVolumeIcon () {
+    switchVolumeIcon() {
         if (this.volume() >= 0.8) {
             this.template.volumeIcon.innerHTML = Icons.volumeUp;
-        }
-        else if (this.volume() > 0) {
+        } else if (this.volume() > 0) {
             this.template.volumeIcon.innerHTML = Icons.volumeDown;
-        }
-        else {
+        } else {
             this.template.volumeIcon.innerHTML = Icons.volumeOff;
         }
     }
@@ -217,11 +225,10 @@ class DPlayer {
     /**
      * Toggle between play and pause
      */
-    toggle () {
+    toggle() {
         if (this.video.paused) {
             this.play();
-        }
-        else {
+        } else {
             this.pause();
         }
     }
@@ -229,35 +236,30 @@ class DPlayer {
     /**
      * attach event
      */
-    on (name, callback) {
+    on(name, callback) {
         this.events.on(name, callback);
     }
 
     /**
      * init Video
      */
-    initMSE (video, type) {
+    initMSE(video, type) {
         this.type = type;
         if (this.options.video.customType && this.options.video.customType[type]) {
             if (Object.prototype.toString.call(this.options.video.customType[type]) === '[object Function]') {
                 this.options.video.customType[type](this.video, this);
-            }
-            else {
+            } else {
                 console.error(`Illegal customType: ${type}`);
             }
-        }
-        else {
+        } else {
             if (this.type === 'auto') {
                 if (/m3u8(#|\?|$)/i.exec(video.src)) {
                     this.type = 'hls';
-                }
-                else if (/.flv(#|\?|$)/i.exec(video.src)) {
+                } else if (/.flv(#|\?|$)/i.exec(video.src)) {
                     this.type = 'flv';
-                }
-                else if (/.mpd(#|\?|$)/i.exec(video.src)) {
+                } else if (/.mpd(#|\?|$)/i.exec(video.src)) {
                     this.type = 'dash';
-                }
-                else {
+                } else {
                     this.type = 'normal';
                 }
             }
@@ -267,97 +269,107 @@ class DPlayer {
             }
 
             switch (this.type) {
-            // https://github.com/video-dev/hls.js
-            case 'hls':
-                if (Hls) {
-                    if (Hls.isSupported()) {
-                        const hls = new Hls();
-                        hls.loadSource(video.src);
-                        hls.attachMedia(video);
-                        this.events.on('destroy', () => {
-                            hls.destroy();
-                        });
-                    }
-                    else {
-                        this.notice('Error: Hls is not supported.');
-                    }
-                }
-                else {
-                    this.notice('Error: Can\'t find Hls.');
-                }
-                break;
-
-            // https://github.com/Bilibili/flv.js
-            case 'flv':
-                if (flvjs) {
-                    if (flvjs.isSupported()) {
-                        const flvPlayer = flvjs.createPlayer({
-                            type: 'flv',
-                            url: video.src
-                        });
-                        flvPlayer.attachMediaElement(video);
-                        flvPlayer.load();
-                        this.events.on('destroy', () => {
-                            flvPlayer.unload();
-                            flvPlayer.detachMediaElement();
-                            flvPlayer.destroy();
-                        });
-                    }
-                    else {
-                        this.notice('Error: flvjs is not supported.');
-                    }
-                }
-                else {
-                    this.notice('Error: Can\'t find flvjs.');
-                }
-                break;
-
-            // https://github.com/Dash-Industry-Forum/dash.js
-            case 'dash':
-                if (dashjs) {
-                    dashjs.MediaPlayer().create().initialize(video, video.src, false);
-                    this.events.on('destroy', () => {
-                        dashjs.MediaPlayer().reset();
-                    });
-                }
-                else {
-                    this.notice('Error: Can\'t find dashjs.');
-                }
-                break;
-
-            // https://github.com/webtorrent/webtorrent
-            case 'webtorrent':
-                if (WebTorrent) {
-                    if (WebTorrent.WEBRTC_SUPPORT) {
-                        this.container.classList.add('dplayer-loading');
-                        const client = new WebTorrent();
-                        const torrentId = video.src;
-                        client.add(torrentId, (torrent) => {
-                            const file = torrent.files.find((file) => file.name.endsWith('.mp4'));
-                            file.renderTo(this.video, {
-                                autoplay: this.options.autoplay
-                            }, () => {
-                                this.container.classList.remove('dplayer-loading');
+                // https://github.com/video-dev/hls.js
+                case 'hls':
+                    if (window.Hls) {
+                        if (window.Hls.isSupported()) {
+                            const options = this.options.pluginOptions.hls;
+                            const hls = new window.Hls(options);
+                            this.plugins.hls = hls;
+                            hls.loadSource(video.src);
+                            hls.attachMedia(video);
+                            this.events.on('destroy', () => {
+                                hls.destroy();
+                                delete this.plugins.hls;
                             });
-                        });
+                        } else {
+                            this.notice('Error: Hls is not supported.');
+                        }
+                    } else {
+                        this.notice("Error: Can't find Hls.");
+                    }
+                    break;
+
+                // https://github.com/Bilibili/flv.js
+                case 'flv':
+                    if (window.flvjs) {
+                        if (window.flvjs.isSupported()) {
+                            const options = Object.assign(this.options.pluginOptions.flvjs, {
+                                type: 'flv',
+                                url: video.src
+                            });
+                            const flvPlayer = window.flvjs.createPlayer(options);
+                            this.plugins.flvjs = flvPlayer;
+                            flvPlayer.attachMediaElement(video);
+                            flvPlayer.load();
+                            this.events.on('destroy', () => {
+                                flvPlayer.unload();
+                                flvPlayer.detachMediaElement();
+                                flvPlayer.destroy();
+                                delete this.plugins.flvjs;
+                            });
+                        } else {
+                            this.notice('Error: flvjs is not supported.');
+                        }
+                    } else {
+                        this.notice("Error: Can't find flvjs.");
+                    }
+                    break;
+
+                // https://github.com/Dash-Industry-Forum/dash.js
+                case 'dash':
+                    if (window.dashjs) {
+                        const dashjsPlayer = window.dashjs
+                            .MediaPlayer()
+                            .create()
+                            .initialize(video, video.src, false);
+                        const options = this.options.pluginOptions.dash;
+                        dashjsPlayer.updateSettings(options);
+                        this.plugins.dash = dashjsPlayer;
                         this.events.on('destroy', () => {
-                            client.remove(torrentId);
-                            client.destroy();
+                            window.dashjs.MediaPlayer().reset();
+                            delete this.plugins.dash;
                         });
+                    } else {
+                        this.notice("Error: Can't find dashjs.");
                     }
-                    else {
-                        this.notice('Error: Webtorrent is not supported.');
+                    break;
+
+                // https://github.com/webtorrent/webtorrent
+                case 'webtorrent':
+                    if (window.WebTorrent) {
+                        if (window.WebTorrent.WEBRTC_SUPPORT) {
+                            this.container.classList.add('dplayer-loading');
+                            const options = this.options.pluginOptions.webtorrent;
+                            const client = new window.WebTorrent(options);
+                            this.plugins.webtorrent = client;
+                            const torrentId = video.src;
+                            video.src = '';
+                            video.preload = 'metadata';
+                            video.addEventListener('durationchange', () => this.container.classList.remove('dplayer-loading'), { once: true });
+                            client.add(torrentId, (torrent) => {
+                                const file = torrent.files.find((file) => file.name.endsWith('.mp4'));
+                                file.renderTo(this.video, {
+                                    autoplay: this.options.autoplay
+                                });
+                            });
+                            this.events.on('destroy', () => {
+                                client.remove(torrentId);
+                                client.destroy();
+                                delete this.plugins.webtorrent;
+                            });
+                        } else {
+                            this.notice('Error: Webtorrent is not supported.');
+                        }
+                    } else {
+                        this.notice("Error: Can't find Webtorrent.");
                     }
-                }
-                else {
-                    this.notice('Error: Can\'t find Webtorrent.');
-                }
-                break;
+                    break;
             }
         }
     }
 
-    initVideo (video, type) {
+    initVideo(video, type) {
         this.initMSE(video, type);
 
         /**
@@ -383,7 +395,7 @@ class DPlayer {
                 // Not a video load error, may be poster load failed, see #307
                 return;
             }
-            this.tran && this.notice && this.type !== 'webtorrent' & this.notice(this.tran('Video load failed'), -1);
+            this.tran && this.notice && this.type !== 'webtorrent' && this.notice(this.tran('Video load failed'), -1);
         });
 
         // video end
@@ -391,8 +403,7 @@ class DPlayer {
             this.bar.set('played', 1, 'width');
             if (!this.loop) {
                 this.pause();
-            }
-            else {
+            } else {
                 this.seek(0);
                 this.play();
             }
@@ -442,11 +453,11 @@ class DPlayer {
         }
     }
 
-    resize () {
+    resize() {
         this.events.trigger('resize');
     }
 
-    destroy () {
+    destroy() {
         instances.splice(instances.indexOf(this), 1);
         this.pause();
         this.controller.destroy();
