@@ -39,4 +39,6 @@ mutex | true | pause other players when this player start play
 ## Other
 
 - [DPlayerHandle for Wordpress](https://github.com/kn007/DPlayerHandle)
+- [Demo](https://kn007.net/topics/legends-never-die/)
+
 
