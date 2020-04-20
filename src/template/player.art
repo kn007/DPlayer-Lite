@@ -56,3 +56,4 @@
     </div>
 </div>
 <div class="dplayer-notice"></div>
+<button class="dplayer-mobile-play">{{@ icons.play }}</button>

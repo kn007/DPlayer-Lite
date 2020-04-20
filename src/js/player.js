@@ -147,20 +147,23 @@ class DPlayer {
     /**
      * Play video
      */
-    play() {
+    play(fromNative) {
         this.paused = false;
-        if (this.video.paused) {
+        if (this.video.paused && !utils.isMobile) {
             this.bezel.switch(Icons.play);
         }
 
         this.template.playButton.innerHTML = Icons.pause;
+        this.template.mobilePlayButton.innerHTML = Icons.pause;
 
-        const playedPromise = Promise.resolve(this.video.play());
-        playedPromise
-            .catch(() => {
-                this.pause();
-            })
-            .then(() => {});
+        if (!fromNative) {
+            const playedPromise = Promise.resolve(this.video.play());
+            playedPromise
+                .catch(() => {
+                    this.pause();
+                })
+                .then(() => {});
+        }
         this.timer.enable('loading');
         this.container.classList.add('dplayer-playing');
         if (this.options.mutex) {
@@ -175,16 +178,19 @@ class DPlayer {
     /**
      * Pause video
      */
-    pause() {
+    pause(fromNative) {
         this.paused = true;
         this.container.classList.remove('dplayer-loading');
 
-        if (!this.video.paused) {
+        if (!this.video.paused && !utils.isMobile) {
             this.bezel.switch(Icons.pause);
         }
 
         this.template.playButton.innerHTML = Icons.play;
-        this.video.pause();
+        this.template.mobilePlayButton.innerHTML = Icons.play;
+        if (!fromNative) {
+            this.video.pause();
+        }
         this.timer.disable('loading');
         this.container.classList.remove('dplayer-playing');
     }
@@ -411,13 +417,13 @@ class DPlayer {
 
         this.on('play', () => {
             if (this.paused) {
-                this.play();
+                this.play(true);
             }
         });
 
         this.on('pause', () => {
             if (!this.paused) {
-                this.pause();
+                this.pause(true);
             }
         });
 

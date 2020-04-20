@@ -49,11 +49,13 @@
             }
         }
     }
+
     &.dplayer-loading {
         .dplayer-bezel .diplayer-loading-icon {
             display: block;
         }
     }
+
     &.dplayer-hide-controller {
         cursor: none;
 
@@ -77,12 +79,24 @@
     &.dplayer-mobile {
         .dplayer-controller .dplayer-icons {
             .dplayer-volume,
-            .dplayer-full-in {
+            .dplayer-full-in,
+            .dplayer-play-icon {
                 display: none;
             }
         }
+
         .dplayer-bar-time {
             display: none;
+        }
+
+        &.dplayer-hide-controller {
+            .dplayer-mobile-play {
+                display: none;
+            }
+        }
+
+        .dplayer-mobile-play {
+            display: block;
         }
     }
 }
