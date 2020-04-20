@@ -1,6 +1,5 @@
 import Icons from './icons';
 import tplPlayer from '../template/player.art';
-import utils from './utils';
 
 class Template {
     constructor(options) {
@@ -15,7 +14,6 @@ class Template {
             options: this.options,
             tran: this.tran,
             icons: Icons,
-            mobile: utils.isMobile,
             video: {
                 pic: this.options.video.pic,
                 preload: this.options.preload,
@@ -36,7 +34,6 @@ class Template {
         this.video = this.container.querySelector('.dplayer-video-current');
         this.bezel = this.container.querySelector('.dplayer-bezel-icon');
         this.playButton = this.container.querySelector('.dplayer-play-icon');
-        this.mobilePlayButton = this.container.querySelector('.dplayer-mobile-play');
         this.videoWrap = this.container.querySelector('.dplayer-video-wrap');
         this.controllerMask = this.container.querySelector('.dplayer-controller-mask');
         this.ptime = this.container.querySelector('.dplayer-ptime');
