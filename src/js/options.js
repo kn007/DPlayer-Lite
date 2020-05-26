@@ -10,7 +10,7 @@ export default (options) => {
         volume: 1,
         video: {},
         mutex: true,
-        pluginOptions: { hls: {}, flvjs: {}, dash: {}, webtorrent: {} },
+        pluginOptions: { hls: {}, flv: {}, dash: {}, webtorrent: {} },
     };
 
     for (const defaultKey in defaultOption) {
