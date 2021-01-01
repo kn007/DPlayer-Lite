@@ -32,13 +32,11 @@
         {{ /if }}
     </div>
     <div class="dplayer-icons dplayer-icons-right">
-        {{ if !options.live }}
         <div class="dplayer-loop">
             <button class="dplayer-icon dplayer-loop-icon">
                 <span class="dplayer-icon-content">{{@ icons.loop }}</span>
             </button>
         </div>
-        {{ /if }}
         <div class="dplayer-full-in">
             <button class="dplayer-icon dplayer-full-in-icon">
                 <span class="dplayer-icon-content">{{@ icons.fullWeb }}</span>

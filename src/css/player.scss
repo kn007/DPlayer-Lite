@@ -38,7 +38,13 @@
         .dplayer-bar-wrap {
             display: none;
         }
+        .dplayer-controller .dplayer-icons {
+            .dplayer-loop {
+                display: none;
+            }
+        }
     }
+
     &.dplayer-playing {
         @media (min-width: 900px) {
             .dplayer-controller-mask {
