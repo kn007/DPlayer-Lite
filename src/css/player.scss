@@ -11,7 +11,7 @@
     svg {
         width: 100%;
         height: 100%;
-        
+
         path,
         circle {
             fill: #fff;
@@ -31,6 +31,14 @@
         transform: translate(0, 0);
     }
 
+    &.dplayer-live {
+        .dplayer-time {
+            display: none;
+        }
+        .dplayer-bar-wrap {
+            display: none;
+        }
+    }
     &.dplayer-playing {
         @media (min-width: 900px) {
             .dplayer-controller-mask {

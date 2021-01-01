@@ -27,13 +27,18 @@
         <span class="dplayer-time">
             <span class="dplayer-ptime">0:00</span> / <span class="dplayer-dtime">0:00</span>
         </span>
+        {{ if options.live }}
+        <span class="dplayer-live-badge"><span class="dplayer-live-dot" style="background: {{ options.theme }};"></span>{{ tran('Live') }}</span>
+        {{ /if }}
     </div>
     <div class="dplayer-icons dplayer-icons-right">
+        {{ if !options.live }}
         <div class="dplayer-loop">
             <button class="dplayer-icon dplayer-loop-icon">
                 <span class="dplayer-icon-content">{{@ icons.loop }}</span>
             </button>
         </div>
+        {{ /if }}
         <div class="dplayer-full-in">
             <button class="dplayer-icon dplayer-full-in-icon">
                 <span class="dplayer-icon-content">{{@ icons.fullWeb }}</span>

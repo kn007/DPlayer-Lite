@@ -1,5 +1,5 @@
 ## Introduction
-DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.25.1 [a987065](https://github.com/MoePlayer/DPlayer/commit/a987065f8add150894db37259583cc23206ad67f).
+DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.26.0 [808dd62](https://github.com/MoePlayer/DPlayer/commit/808dd623d6b3facf321f27f9358c5fe97b3931a3).
 
 ![dplayer-lite-preview](https://user-images.githubusercontent.com/6196903/33885965-eed74a92-df7f-11e7-9a18-d8e53b522c3f.png)
 
@@ -17,7 +17,7 @@ DPlayer Lite, based on [DPlayer](https://github.com/MoePlayer/DPlayer) 1.25.1 [a
 	- Ogg Theora Vorbis
 - Features
 	- Hotkeys
-	- Loop Control Button
+	- Loop Control
 
 ## Usage
 
@@ -26,6 +26,7 @@ Name|Default|Note
 container | document.getElementsByClassName('dplayer')[0] | player container
 autoplay | false | not supported in mobile browsers
 theme | '#b7daff' | main color
+live | false | enable live mode
 loop | false | upon reaching the end of the video, automatically seek back to the start
 lang | navigator.language.toLowerCase() | values: 'en', 'zh-cn', 'zh-tw'
 preload | 'auto' | values: 'none', 'metadata', 'auto'

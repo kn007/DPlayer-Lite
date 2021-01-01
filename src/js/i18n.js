@@ -26,6 +26,7 @@ const tranTxt = {
         'Go back': '快退',
         'seconds': '秒',
         'Volume': '音量',
+        'Live': '直播',
     },
     'zh-tw': {
         'Video load failed': '視頻加載失敗',
@@ -33,6 +34,7 @@ const tranTxt = {
         'Go back': '快退',
         'seconds': '秒',
         'Volume': '音量',
+        'Live': '直播',
     }
 };
 

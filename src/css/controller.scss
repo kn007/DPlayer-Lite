@@ -102,7 +102,8 @@
                 padding: 8px;
             }
         }
-        .dplayer-time {
+        .dplayer-time,
+        .dplayer-live-badge {
             line-height: 38px;
             color: #eee;
             text-shadow: 0 0 2px rgba(0, 0, 0, .5);
@@ -110,7 +111,15 @@
             font-size: 13px;
             cursor: default;
         }
-
+        .dplayer-live-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            vertical-align: 4%;
+            margin-right: 5px;
+            content: '';
+            border-radius: 6px;
+        }
         .dplayer-icon {
             width: 40px;
             height: 100%;
